@@ -185,6 +185,18 @@ func RunCSV(cmd *cobra.Command, args []string) {
 			`A secret and configmap (name=claim) will be created with access details for the app pods.`,
 		"ObjectBucket": `Used under-the-hood. Created per ObjectBucketClaim and keeps provisioning information.`,
 	}
+	specDesc := map[string][]operv1.SpecDescriptor {
+		"BucketClass": 	[]operv1.SpecDescriptor{
+			operv1.SpecDescriptor{Description:"BackingStores is an unordered list of backing store names. The meaning of the list depends on the placement.",
+				Path:"placementPolicy.tiers[0].backingStores[0]",
+				XDescriptors:[]string{"urn:alm:descriptor:com.tectonic.ui:placementPolicy","urn:alm:descriptor:com.tectonic.ui:text"},
+				DisplayName:"Backing Stores"},
+			operv1.SpecDescriptor{Description:"Placement specifies the type of placement for the tier If empty it should have a single backing store.",
+				Path:"placementPolicy.tiers[0].placement",
+				XDescriptors:[]string{"urn:alm:descriptor:com.tectonic.ui:placementPolicy","urn:alm:descriptor:com.tectonic.ui:text"},
+				DisplayName:"Placement"},
+		},
+	}
 	crd.ForEachCRD(func(c *crd.CRD) {
 		crdDesc := operv1.CRDDescription{
 			Name:        c.Name,
@@ -192,6 +204,7 @@ func RunCSV(cmd *cobra.Command, args []string) {
 			Version:     c.Spec.Version,
 			DisplayName: c.Spec.Names.Kind,
 			Description: crdDescriptions[c.Spec.Names.Kind],
+			SpecDescriptors: specDesc[c.Spec.Names.Kind],
 			Resources: []operv1.APIResourceReference{
 				operv1.APIResourceReference{Name: "services", Kind: "Service", Version: "v1"},
 				operv1.APIResourceReference{Name: "secrets", Kind: "Secret", Version: "v1"},
